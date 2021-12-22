@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-size: 17px;
+  background: rgba(168, 106, 184, 0.308);
+  text-align: center;
+}
+header {
+  background: rgba(192, 254, 176, 0.438);
+}
+h1 {
+  font-family: lobster;
+  color: gray;
+  font-size: 4em;
+  font-weight: lighter;
+}
+.message-wrapper {
+  padding: 1.2em;
+  font-family: monospace;
+  font-size: 1.6em;
+}
+.game-board {
+  margin: 0 auto;
+  width: 600px;
+  height: 600px;
+  border: 1px solid #000;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.board-box {
+  border: 1px solid black;
+}
