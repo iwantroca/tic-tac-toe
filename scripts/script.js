@@ -1,5 +1,4 @@
 const GameBoard = (() => {
-  let round = 1;
   const board = new Array(9).fill("");
   const getIndex = (e) => {
     let index = e.target.dataset.boxIndex;
@@ -7,10 +6,13 @@ const GameBoard = (() => {
     return index;
   };
   const setIndex = (e) => {
-    GameBoard.board[getIndex(e)] = PlayerController.getCurrentPlayer().marker;
-    console.log(GameBoard.board);
+    if (GameBoard.board[getIndex(e)] == "") {
+      GameBoard.board[getIndex(e)] = PlayerController.getCurrentPlayer().marker;
+      e.target.textContent = PlayerController.getCurrentPlayer().marker;
+      console.log(GameBoard.board);
+    }
   };
-  return { round, board, getIndex, setIndex };
+  return { board, getIndex, setIndex };
 })();
 
 const Player = (marker) => {
@@ -57,7 +59,9 @@ const newGameController = (() => {
 //    -> Start with O's turn and keep switching turn
 // 3. as per player's turn insert that marker in the array as per the fetched index.
 //    -> ticTacToe.board[index] = playerWithTurn.marker;
-
+// ~~~All targets achieved~~~~
+// ** Bug => Player turn will continue on clicking on a already filled box.
+// 4. Add a test to check for win condition each time
 const GameController = (() => {
   const updateGame = () => {
     let boxes = document.querySelectorAll(".board-box");
