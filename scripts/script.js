@@ -1,4 +1,6 @@
 const GameBoard = (() => {
+  let round = 1;
+  let settingDone = false;
   const board = new Array(9).fill("");
   const getIndex = (e) => {
     let index = e.target.dataset.boxIndex;
@@ -6,68 +8,60 @@ const GameBoard = (() => {
     return index;
   };
   const setIndex = (e) => {
-    if (GameBoard.board[getIndex(e)] == "") {
+    if (!GameBoard.board[getIndex(e)]) {
       GameBoard.board[getIndex(e)] = PlayerController.getCurrentPlayer().marker;
       e.target.textContent = PlayerController.getCurrentPlayer().marker;
       console.log(GameBoard.board);
+      GameBoard.round += 1;
+      settingDone = true;
+    } else {
+      settingDone = false;
     }
   };
-  return { board, getIndex, setIndex };
+  return {
+    round,
+    board,
+    getIndex,
+    setIndex,
+    // settingDone,
+    getSettingDone: () => settingDone,
+  };
 })();
 
 const Player = (marker) => {
-  const activePlayer = false;
-  return { marker, activePlayer };
+  return { marker };
 };
 
 const PlayerController = (() => {
   let playerO = Player("O");
   let playerX = Player("X");
-  let currentPlayer;
+  let currentPlayer = playerO;
   let switchPlayer = () => {
-    if (currentPlayer == undefined || !playerO.activePlayer) {
-      playerO.activePlayer = true;
-      playerX.activePlayer = false;
-      currentPlayer = playerO;
-    } else if (playerO.activePlayer && !playerX.activePlayer) {
-      playerX.activePlayer = true;
-      playerO.activePlayer = false;
+    if (currentPlayer == playerO) {
       currentPlayer = playerX;
+    } else {
+      currentPlayer = playerO;
     }
   };
-
   return {
     playerO,
     playerX,
     switchPlayer,
     getCurrentPlayer: () => currentPlayer,
+    setCurrentPlayer: (val) => (currentPlayer = val),
   };
 })();
-
-const newGameController = (() => {
-  const updateRound = () => {
-    GameBoard.round += 1;
-    console.log(GameBoard.round);
-  };
-  return { updateRound };
-})();
-
-// add event listener to each box
-// 1. to get its index in array
-//    -> to get the index add data-Index to html
-// 2. and then check for player's turn
-//    -> Start with O's turn and keep switching turn
-// 3. as per player's turn insert that marker in the array as per the fetched index.
-//    -> ticTacToe.board[index] = playerWithTurn.marker;
-// ~~~All targets achieved~~~~
-// ** Bug => Player turn will continue on clicking on a already filled box.
 // 4. Add a test to check for win condition each time
 const GameController = (() => {
   const updateGame = () => {
     let boxes = document.querySelectorAll(".board-box");
     [...boxes].forEach((x) => {
       x.addEventListener("click", (e) => {
-        PlayerController.switchPlayer();
+        if (GameBoard.getSettingDone()) {
+          PlayerController.switchPlayer();
+        } else if (GameBoard.round === 1) {
+          PlayerController.getCurrentPlayer(PlayerController.playerO);
+        }
         GameBoard.getIndex(e);
         GameBoard.setIndex(e);
         console.log(GameBoard.board);
@@ -76,3 +70,4 @@ const GameController = (() => {
   };
   return { updateGame };
 })();
+GameController.updateGame();
