@@ -1,7 +1,7 @@
 const GameBoard = (() => {
+  const board = new Array(9).fill("");
   let round = 1;
   let settingDone = false;
-  const board = new Array(9).fill("");
   const getIndex = (e) => {
     let index = e.target.dataset.boxIndex;
     console.log(index);
@@ -14,17 +14,40 @@ const GameBoard = (() => {
       console.log(GameBoard.board);
       GameBoard.round += 1;
       settingDone = true;
+      if (getResult()) {
+        console.log(`${PlayerController.getCurrentPlayer().marker} wins`);
+      }
     } else {
       settingDone = false;
     }
+  };
+  const getResult = () => {
+    const winConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    let result = winConditions.some((indices) => {
+      return (
+        board[indices[0]] === PlayerController.getCurrentPlayer().marker &&
+        board[indices[1]] === PlayerController.getCurrentPlayer().marker &&
+        board[indices[2]] === PlayerController.getCurrentPlayer().marker
+      );
+    });
+    return result;
   };
   return {
     round,
     board,
     getIndex,
     setIndex,
-    // settingDone,
     getSettingDone: () => settingDone,
+    getResult,
   };
 })();
 
@@ -51,7 +74,6 @@ const PlayerController = (() => {
     setCurrentPlayer: (val) => (currentPlayer = val),
   };
 })();
-// 4. Add a test to check for win condition each time
 const GameController = (() => {
   const updateGame = () => {
     let boxes = document.querySelectorAll(".board-box");
@@ -59,9 +81,10 @@ const GameController = (() => {
       x.addEventListener("click", (e) => {
         if (GameBoard.getSettingDone()) {
           PlayerController.switchPlayer();
-        } else if (GameBoard.round === 1) {
-          PlayerController.getCurrentPlayer(PlayerController.playerO);
         }
+        //  else if (GameBoard.round === 1) {
+        //   PlayerController.getCurrentPlayer(PlayerController.playerO);
+        // }
         GameBoard.getIndex(e);
         GameBoard.setIndex(e);
         console.log(GameBoard.board);
@@ -71,3 +94,4 @@ const GameController = (() => {
   return { updateGame };
 })();
 GameController.updateGame();
+// window.addEventListener("click", GameController.updateGame());
