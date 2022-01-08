@@ -14,10 +14,12 @@ const DisplayController = (() => {
 
   boxes.forEach((box) =>
     box.addEventListener("click", (e) => {
+      if (GameController.getGameOver() || e.target.textContent) return;
       GameController.playRound(e.target.dataset.boxIndex);
       updateDisplay(e);
-      // play round
-      // check winner
+      if (GameController.getResult())
+        console.log(`${GameController.getResult()} is the winner`);
+      PlayerController.switchPlayer();
     })
   );
   const updateDisplay = (e) => {
@@ -25,19 +27,61 @@ const DisplayController = (() => {
   };
   return { updateDisplay };
 })();
-const GameController = (() => {
-  let round = 1;
-  const playRound = (index) => {
-    GameBoard.setMarker(index, PlayerController.getCurrentPlayer().marker);
-    // check winner
-    // increse the round
-    round++;
-  };
-  return { round, playRound };
-})();
 const PlayerController = (() => {
   const playerOne = Player("O");
   const playerTwo = Player("X");
-  const currentPlayer = playerOne;
-  return { playerOne, playerTwo, getCurrentPlayer: () => currentPlayer };
+  let currentPlayer = playerOne;
+  const switchPlayer = () => {
+    if (currentPlayer == playerOne) currentPlayer = playerTwo;
+    else {
+      currentPlayer = playerOne;
+    }
+  };
+  return {
+    playerOne,
+    playerTwo,
+    getCurrentPlayer: () => currentPlayer,
+    switchPlayer,
+  };
+})();
+
+const GameController = (() => {
+  let round = 1;
+  let gameOver = false;
+  const playRound = (index) => {
+    GameBoard.setMarker(index, PlayerController.getCurrentPlayer().marker);
+    round++;
+  };
+  const getResult = () => {
+    const winConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    let result = winConditions.some((indices) => {
+      return (
+        GameBoard.board[indices[0]] ===
+          PlayerController.getCurrentPlayer().marker &&
+        GameBoard.board[indices[1]] ===
+          PlayerController.getCurrentPlayer().marker &&
+        GameBoard.board[indices[2]] ===
+          PlayerController.getCurrentPlayer().marker
+      );
+    });
+    if (result) {
+      gameOver = true;
+      return PlayerController.getCurrentPlayer().marker;
+    }
+  };
+  return {
+    getRound: () => round,
+    playRound,
+    getResult,
+    getGameOver: () => gameOver,
+  };
 })();
